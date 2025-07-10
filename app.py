@@ -59,7 +59,7 @@ if df is not None:
         col_y_options = df.select_dtypes(include='number').columns.tolist()
         if col_y_options:
             col_y = st.selectbox("Y軸（数値）", col_y_options)
-            chart_type = st.selectbox("グラフタイプ", ["bar", "line", "scatter"])
+            chart_type = st.selectbox("グラフタイプ", ["bar", "line", "scatter", "area", "box", "pie"])
 
             if chart_type == "bar":
                 fig = px.bar(df, x=col_x, y=col_y)
@@ -67,8 +67,33 @@ if df is not None:
                 fig = px.line(df, x=col_x, y=col_y)
             elif chart_type == "scatter":
                 fig = px.scatter(df, x=col_x, y=col_y)
-
+            elif chart_type == "area":
+                fig = px.area(df, x=col_x, y=col_y)
+            elif chart_type == "box":
+                fig = px.box(df, x=col_x, y=col_y)  
+            elif chart_type == "pie":
+                fig = px.pie(df, names=col_x, values=col_y)
+            
             st.plotly_chart(fig, use_container_width=True)
+            # グラフのダウンロード機能
+            graph_download = st.radio("グラフのダウンロード形式", ["PNG", "SVG"])
+            if st.button("グラフをダウンロード"):
+                if graph_download == "PNG":
+                    img_bytes = fig.to_image(format="png")
+                    st.download_button(
+                        label="PNGとしてダウンロード",
+                        data=img_bytes,
+                        file_name="plot.png",
+                        mime="image/png"
+                    )
+                elif graph_download == "SVG":
+                    img_bytes = fig.to_image(format="svg")
+                    st.download_button(
+                        label="SVGとしてダウンロード",
+                        data=img_bytes,
+                        file_name="plot.svg",
+                        mime="image/svg+xml"
+                    )
         else:
             st.warning("数値列が見つかりません。Y軸に指定できる列がありません。")
 
